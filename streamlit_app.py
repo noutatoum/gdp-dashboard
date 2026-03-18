@@ -1,151 +1,103 @@
 import streamlit as st
-import pandas as pd
-import math
-from pathlib import Path
+import random
 
-# Set the title and favicon that appear in the Browser's tab bar.
+# --- 1. CONFIGURATION DE LA PAGE ---
 st.set_page_config(
-    page_title='GDP dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
+    page_title="SCAN FRONTIÈRE v1.0",
+    page_icon="🛂",
+    layout="centered"
 )
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
+# --- 2. DESIGN GRAPHIQUE MODERNE (CSS) ---
+st.markdown("""
+    <style>
+    .stApp { background-color: #f8f9fa; color: #333333; font-family: 'Segoe UI', sans-serif; }
+    h1 { color: #007BFF !important; text-align: center; font-weight: 800; text-transform: uppercase; }
+    
+    /* Boutons de réponse */
+    div.stButton > button {
+        width: 100%; border: none; border-radius: 12px; padding: 15px;
+        background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+        color: white !important; font-weight: bold; font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2); transition: 0.3s;
+    }
+    div.stButton > button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4); }
 
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
+    /* Carte de Résultat (Dossier) */
+    .id-card {
+        background: white; padding: 30px; border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 10px solid #007BFF;
+    }
+    .status-badge { background: #dcfce7; color: #166534; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
+    </style>
+    """, unsafe_allow_html=True)
 
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
-    """
+# --- 3. BASE DE DONNÉES DES PERSONNAGES ---
+PERSONNAGES = {
+    "Perso ONG": {"nom": "Isabelle", "icon": "🏥", "biom": "Empathie: 98%", "info": "Humanitaire. Dossier prioritaire."},
+    "Perso Touriste": {"nom": "Marc", "icon": "📸", "biom": "Stress: Bas", "info": "Voyageur standard. Aucune alerte."},
+    "Perso hacker": {"nom": "Nour", "icon": "💻", "biom": "Activité: Intense", "info": "Expert Cyber. Matériel chiffré détecté."},
+    "Perso garde-frontières": {"nom": "Isabelle S.", "icon": "👮", "biom": "Discipline: 100%", "info": "Transit officiel autorisé."},
+    "Perso trafiquant": {"nom": "Inconnu", "icon": "📦", "biom": "Nervosité: Masquée", "info": "Comportement suspect détecté."},
+    "Perso évasion fiscale": {"nom": "Jean-Pierre", "icon": "💰", "biom": "Arrogance: 10/10", "info": "Flux financiers suspects."},
+    "Perso exil": {"nom": "Geoffrey", "icon": "🛡️", "biom": "État: Épuisement", "info": "Demande de protection internationale."},
+    "Perso Ananas": {"nom": "Specimen X", "icon": "🍍", "biom": "Bio-Scan: Inconnu", "info": "Inexplicable. Ne répond à rien."},
+    "Perso chercheur": {"nom": "Dr Thorne", "icon": "🔬", "biom": "Focus: Scientifique", "info": "Échantillons non identifiés."},
+    "Perso artiste": {"nom": "Luna", "icon": "🎨", "biom": "Créativité: Élevée", "info": "Voyage pour résidence artistique."}
+}
 
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
-
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
-
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
-    )
-
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
-
-    return gdp_df
-
-gdp_df = get_gdp_data()
-
-# -----------------------------------------------------------------------------
-# Draw the actual page
-
-# Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP dashboard
-
-Browse GDP data from the [World Bank Open Data](https://data.worldbank.org/) website. As you'll
-notice, the data only goes to 2022 right now, and datapoints for certain years are often missing.
-But it's otherwise a great (and did I mention _free_?) source of data.
-'''
-
-# Add some spacing
-''
-''
-
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
+# --- 4. LES 10 QUESTIONS ---
+QUESTIONS = [
+    ("Motif principal de votre passage ?", [("Aide Humanitaire", "Perso ONG"), ("Vacances", "Perso Touriste"), ("Affaires", "Perso évasion fiscale"), ("Asile", "Perso exil")]),
+    ("Objectif après la frontière ?", [("Installation", "Perso exil"), ("Transit", "Perso garde-frontières"), ("Recherche", "Perso chercheur"), ("Inconnu", "Perso Ananas")]),
+    ("Ressources financières ?", [("Offshore", "Perso évasion fiscale"), ("Standard", "Perso Touriste"), ("Faibles", "Perso exil"), ("Crypto", "Perso hacker")]),
+    ("Document présenté ?", [("Diplomatique", "Perso garde-frontières"), ("Biométrique", "Perso Touriste"), ("Abîmé", "Perso exil"), ("Aucun", "Perso trafiquant")]),
+    ("Objets suspects ?", [("Aucun", "Perso garde-frontières"), ("Laptop chiffré", "Perso hacker"), ("Arme", "Perso trafiquant"), ("Échantillon bio", "Perso Ananas")]),
+    ("Type de bagage ?", [("Luxe", "Perso évasion fiscale"), ("Sac à dos", "Perso Touriste"), ("Mallette technique", "Perso chercheur"), ("Rien", "Perso Ananas")]),
+    ("Réaction au scanner ?", [("Calme", "Perso garde-frontières"), ("Nervosité", "Perso trafiquant"), ("Mépris", "Perso évasion fiscale"), ("Silence", "Perso Ananas")]),
+    ("Profession ?", [("Artiste", "Perso artiste"), ("Agent d'État", "Perso garde-frontières"), ("Étudiant", "Perso Touriste"), ("Sans emploi", "Perso exil")]),
+    ("Durée du séjour ?", [("Quelques jours", "Perso Touriste"), ("Indéfinie", "Perso chercheur"), ("Permanent", "Perso exil"), ("Quelques heures", "Perso garde-frontières")]),
+    ("Dernière zone visitée ?", [("Capitale", "Perso Touriste"), ("Zone de conflit", "Perso ONG"), ("Paradis fiscal", "Perso évasion fiscale"), ("Inconnue", "Perso Ananas")])
 ]
 
-st.header('GDP over time', divider='gray')
+# --- 5. LOGIQUE DE SESSION ---
+if 'step' not in st.session_state:
+    st.session_state.step = 0
+    st.session_state.scores = {k: 0 for k in PERSONNAGES.keys()}
 
-''
+# --- 6. INTERFACE ---
+st.markdown("<h1>🛂 SCAN FRONTIÈRE v1.0</h1>", unsafe_allow_html=True)
+st.write("---")
 
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
-)
+if st.session_state.step < len(QUESTIONS):
+    st.progress(st.session_state.step / len(QUESTIONS))
+    q_text, options = QUESTIONS[st.session_state.step]
+    st.subheader(q_text)
+    
+    # Boutons pour les réponses
+    for text, perso_id in options:
+        if st.button(text, key=text):
+            st.session_state.scores[perso_id] += 5
+            st.session_state.step += 1
+            st.rerun()
+else:
+    # RÉSULTAT FINAL
+    gagnant_id = max(st.session_state.scores, key=st.session_state.scores.get)
+    p = PERSONNAGES[gagnant_id]
 
-''
-''
+    st.markdown('<div class="id-card">', unsafe_allow_html=True)
+    st.markdown('<span class="status-badge">✓ ANALYSE VALIDÉE</span>', unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.markdown(f"<h1 style='font-size: 100px; margin:0;'>{p['icon']}</h1>", unsafe_allow_html=True)
+    with col2:
+        st.markdown(f"### NOM : {p['nom']}")
+        st.write(f"**PROFIL :** {gagnant_id}")
+        st.info(f"**INSIGHTS :** {p['info']}")
+        st.error(f"**BIOMÉTRIE :** {p['biom']}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
-
-st.header(f'GDP in {to_year}', divider='gray')
-
-''
-
-cols = st.columns(4)
-
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
-
-    with col:
-        first_gdp = first_year[first_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[last_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
-        else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
-
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
-        )
+    if st.button("NOUVEAU SCAN"):
+        st.session_state.step = 0
+        st.session_state.scores = {k: 0 for k in PERSONNAGES.keys()}
+        st.rerun()
