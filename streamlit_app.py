@@ -17,11 +17,9 @@ frontier_html = """
         
         .header-title { color: #00d2ff; font-size: 2.5rem; font-weight: 800; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 15px; }
         
-        /* Barre de progression */
         .progress-container { width: 100%; background-color: #ddd; border-radius: 10px; margin-bottom: 20px; height: 10px; overflow: hidden; }
         .progress-bar { height: 100%; background-color: #00d2ff; width: 0%; transition: 0.3s; }
 
-        /* Style des boutons */
         .btn-option { width: 100%; padding: 15px; margin: 10px 0; background: white; color: #1c1e21; border: 1px solid #ddd; border-radius: 10px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn-option:hover { background: #f0f2f5; border-color: #00d2ff; }
 
@@ -34,13 +32,23 @@ frontier_html = """
         
         .profile-section { display: flex; gap: 20px; align-items: center; margin-bottom: 30px; }
         .photo-frame { width: 180px; height: 180px; border-radius: 20px; border: 2px solid #42b72a; overflow: hidden; background: #0e1621; }
-        .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* CORRECTION PHOTO */
+        .photo-frame img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            object-position: center top; 
+        }
         
         .info-text h2 { color: #00d2ff; font-size: 2rem; margin: 0; text-transform: uppercase; }
         .profile-type { color: #42b72a; font-weight: 800; font-size: 1.2rem; margin: 5px 0; }
         .risk-level { color: #84a1c0; font-size: 0.9rem; }
 
         .terminal-box { background: #0e1621; padding: 20px; border-radius: 10px; border-left: 4px solid #42b72a; color: #42b72a; font-family: 'Courier New', monospace; font-size: 1rem; }
+
+        /* BOUTON RESTART CACHÉ PAR DÉFAUT */
+        #restart-btn { display: none; }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -52,7 +60,7 @@ frontier_html = """
 
         <div id="quiz-zone">
             <div class="progress-container"><div id="p-bar" class="progress-bar"></div></div>
-            <h3 id="q-text" style="color: #1c1e21;">Initialisation du scanner...</h3>
+            <h3 id="q-text" style="color: #1c1e21;">Analyse du sujet...</h3>
             <div id="options-zone"></div>
         </div>
 
@@ -80,7 +88,7 @@ frontier_html = """
                 </div>
             </div>
             
-            <button class="btn-option" style="margin-top:20px; background: white;" onclick="location.reload()">NOUVELLE ANALYSE</button>
+            <button id="restart-btn" class="btn-option" style="margin-top:20px; background: white;" onclick="location.reload()">NOUVELLE ANALYSE</button>
         </div>
     </div>
 
@@ -88,28 +96,28 @@ frontier_html = """
         const PATH = "https://raw.githubusercontent.com/noutatoum/gdp-dashboard/main/MonScanner/";
 
         const PROFILS = {
-            "Touriste": { s: "AUTORISÉ", c: "#42b72a", img: "touriste.png", n: "Voyageur standard. Visa valide. Séjour temporaire.", r: "BAS", msg: "🔓 ACCÈS ACCORDÉ", bc: "#e8f5e9" },
-            "Hacker": { s: "DÉTENU", c: "#d93025", img: "hacker.png", n: "Matériel cyber-offensif détecté. Tentative d'intrusion.", r: "CRITIQUE", msg: "🚨 ALERTE SÉCURITÉ", bc: "#ffebee" },
-            "Trafiquant": { s: "INTERPELLÉ", c: "#d93025", img: "trafiquant.png", n: "Contrebande suspectée via scanner THz.", r: "ÉLEVÉ", msg: "🚨 INTERCEPTION", bc: "#ffebee" },
-            "Exile": { s: "EN ATTENTE", c: "#fabb3a", img: "exile.png", n: "Dossier humanitaire en cours d'examen.", r: "MODÉRÉ", msg: "⚠️ EXAMEN REQUIS", bc: "#fff3e0" },
-            "Ananas": { s: "SAISI", c: "#d93025", img: "ananas.png", n: "Bio-organisme non identifié. Risque sanitaire.", r: "BIO-RISQUE", msg: "🚫 BIO-DANGER", bc: "#ffebee" },
-            "Agent": { s: "VALIDE", c: "#42b72a", img: "agent.png", n: "Mission officielle validée par l'État.", r: "AUCUN", msg: "🔓 PRIORITÉ DIPLOMATIQUE", bc: "#e8f5e9" },
-            "Evasion": { s: "SIGNALÉ", c: "#fabb3a", img: "evasion.png", n: "Capitaux suspects. Signalement transmis au fisc.", r: "FINANCIER", msg: "⚠️ SIGNALEMENT FISCAL", bc: "#fff3e0" },
-            "Artiste": { status: "AUTORISÉ", color: "#42b72a", img: "artiste.png", note: "Sujet créatif. Pas de menace.", r: "BAS", msg: "🔓 ACCÈS ACCORDÉ", bc: "#e8f5e9" },
-            "Chercheur": { s: "CONTRÔLÉ", c: "#1877f2", img: "chercheur.png", n: "Matériel scientifique approuvé sous protocole.", r: "MODÉRÉ", msg: "🔍 CONTRÔLE SCIENTIFIQUE", bc: "#e3f2fd" }
+            "Touriste": { s: "AUTORISÉ", c: "#42b72a", img: "touriste.png", n: "Voyageur standard. Visa valide.", r: "BAS", msg: "🔓 ACCÈS ACCORDÉ", bc: "#e8f5e9" },
+            "Hacker": { s: "DÉTENU", c: "#d93025", img: "hacker.png", n: "Matériel cyber-offensif détecté.", r: "CRITIQUE", msg: "🚨 ALERTE SÉCURITÉ", bc: "#ffebee" },
+            "Trafiquant": { s: "INTERPELLÉ", c: "#d93025", img: "trafiquant.png", n: "Contrebande suspectée.", r: "ÉLEVÉ", msg: "🚨 INTERCEPTION", bc: "#ffebee" },
+            "Exile": { s: "EN ATTENTE", c: "#fabb3a", img: "exile.png", n: "Dossier humanitaire en cours.", r: "MODÉRÉ", msg: "⚠️ EXAMEN REQUIS", bc: "#fff3e0" },
+            "Ananas": { s: "SAISI", c: "#d93025", img: "ananas.png", n: "Bio-organisme non identifié.", r: "BIO-RISQUE", msg: "🚫 BIO-DANGER", bc: "#ffebee" },
+            "Agent": { s: "VALIDE", c: "#42b72a", img: "agent.png", n: "Mission officielle validée.", r: "AUCUN", msg: "🔓 PRIORITÉ DIPLOMATIQUE", bc: "#e8f5e9" },
+            "Evasion": { s: "SIGNALÉ", c: "#fabb3a", img: "evasion.png", n: "Capitaux suspects. Signalement fisc.", r: "FINANCIER", msg: "⚠️ SIGNALEMENT FISCAL", bc: "#fff3e0" },
+            "Artiste": { s: "AUTORISÉ", c: "#42b72a", img: "artiste.png", n: "Sujet créatif. Pas de menace.", r: "BAS", msg: "🔓 ACCÈS ACCORDÉ", bc: "#e8f5e9" },
+            "Chercheur": { s: "CONTRÔLÉ", c: "#1877f2", img: "chercheur.png", n: "Matériel scientifique approuvé.", r: "MODÉRÉ", msg: "🔍 CONTRÔLE SCIENTIFIQUE", bc: "#e3f2fd" }
         };
 
         const QS = [
-            { q: "Motif de passage ?", opt: [["Vacances", "Touriste"], ["Mission État", "Agent"], ["Investissements", "Evasion"], ["Asile", "Exile"]] },
-            { q: "Contenu des bagages ?", opt: [["Vêtements", "Touriste"], ["Serveurs chiffrés", "Hacker"], ["Inconnu organique", "Ananas"], ["Rien", "Exile"]] },
-            { q: "Profession ?", opt: [["Étudiant", "Touriste"], ["Ingénieur Cyber", "Hacker"], ["Peintre", "Artiste"], ["Scientifique", "Chercheur"]] },
-            { q: "Réaction au scanner ?", opt: [["Calme", "Agent"], ["Nervosité / Sueur", "Trafiquant"], ["Dédain", "Evasion"], ["Confusion", "Ananas"]] },
-            { q: "Document présenté ?", opt: [["Passeport Bio", "Touriste"], ["Ordre mission", "Agent"], ["Déchiré", "Exile"], ["Faux", "Trafiquant"]] },
-            { q: "Appareils électroniques ?", opt: [["Smartphone", "Touriste"], ["Antenne Satellite", "Hacker"], ["Brouilleur GSM", "Trafiquant"], ["Microscope", "Chercheur"]] },
-            { q: "Ressources financières ?", opt: [["Salaire", "Touriste"], ["Bitcoin / Monero", "Hacker"], ["Comptes Offshore", "Evasion"], ["Néant", "Exile"]] },
-            { q: "Destination ?", opt: [["Hôtel", "Touriste"], ["Datacenter", "Hacker"], ["Banque de transit", "Evasion"], ["Laboratoire", "Chercheur"]] },
-            { q: "Durée du séjour ?", opt: [["1 semaine", "Touriste"], ["Indéfini", "Exile"], ["48h", "Agent"], ["Inconnue", "Ananas"]] },
-            { q: "Dernier pays visité ?", opt: [["Espace Schengen", "Touriste"], ["Darknet City", "Hacker"], ["Zone de conflit", "Exile"], ["Inconnu", "Ananas"]] }
+            { q: "Motif de passage ?", opt: [["Vacances / Tourisme", "Touriste"], ["Mission d'État", "Agent"], ["Investissements", "Evasion"], ["Demande d'asile", "Exile"]] },
+            { q: "Contenu des bagages ?", opt: [["Effets personnels", "Touriste"], ["Serveurs / Unités centrales", "Hacker"], ["Spécimen organique inconnu", "Ananas"], ["Bagage vide", "Exile"]] },
+            { q: "Profession ?", opt: [["Étudiant / Salarié", "Touriste"], ["Monsieur d'affaires", "Evasion"], ["Artiste indépendant", "Artiste"], ["Inconnue / Non déclaré", "Ananas"]] },
+            { q: "Réaction au scanner ?", opt: [["Calme absolu", "Agent"], ["Signes de stress intense", "Trafiquant"], ["Dédain / Arrogance", "Evasion"], ["Confusion totale", "Ananas"]] },
+            { q: "Document présenté ?", opt: [["Passeport Biométrique", "Touriste"], ["Passeport Diplomatique", "Agent"], ["Document déchiré / Illisible", "Exile"], ["Faux document détecté", "Trafiquant"]] },
+            { q: "Appareils électroniques ?", opt: [["Smartphone standard", "Touriste"], ["Matériel médical certifié", "Chercheur"], ["Matériel d'espionnage", "Hacker"], ["Appareil inconnu / Suspect", "Ananas"]] },
+            { q: "Ressources financières ?", opt: [["Salaire mensuel", "Touriste"], ["Cryptomonnaies anonymes", "Hacker"], ["Comptes Offshore", "Evasion"], ["Néant", "Exile"]] },
+            { q: "Destination prévue ?", opt: [["Hôtel / Airbnb", "Touriste"], ["Ambassade / Consulat", "Agent"], ["Paradis fiscal", "Evasion"], ["Centre de recherche", "Chercheur"]] },
+            { q: "Durée du séjour ?", opt: [["1 semaine", "Touriste"], ["Durée indéfinie", "Exile"], ["Transit 48h", "Agent"], ["Transit 24h", "Ananas"]] },
+            { q: "Dernier pays visité ?", opt: [["Zone sécurisée (Schengen)", "Touriste"], ["Zone de conflit", "Exile"], ["Pays sous embargo", "Hacker"], ["Provenance inconnue", "Ananas"]] }
         ];
 
         let step = 0;
@@ -134,6 +142,8 @@ frontier_html = """
         function finish() {
             document.getElementById("quiz-zone").style.display = "none";
             document.getElementById("result-card").style.display = "block";
+            document.getElementById("restart-btn").style.display = "block"; // AFFICHE LE BOUTON À LA FIN
+
             const win = Object.keys(sc).reduce((a, b) => sc[a] > sc[b] ? a : b);
             const r = PROFILS[win];
 
@@ -156,8 +166,6 @@ frontier_html = """
 
             if (r.s === "AUTORISÉ" || r.s === "VALIDE") {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            } else {
-                navigator.vibrate(500);
             }
         }
         loadQ();
