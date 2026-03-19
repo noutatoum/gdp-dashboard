@@ -1,4 +1,3 @@
-
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -18,11 +17,16 @@ frontier_html = """
         .progress-bar { height: 100%; background-color: #00d2ff; width: 0%; transition: 0.4s ease-out; }
         .btn-option { width: 100%; padding: 16px; margin: 10px 0; background: white; color: #1c1e21; border: 1px solid #ddd; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .btn-option:hover { background: #f0f2f5; border-color: #00d2ff; transform: translateY(-2px); }
+        
         #access-bar { display: none; width: 100%; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-weight: bold; text-align: left; font-size: 1.1rem; border-left: 5px solid; }
         #result-card { display: none; background: #1b2838; border-radius: 20px; padding: 30px; border-bottom: 6px solid #42b72a; text-align: left; position: relative; animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+        
         .id-number { position: absolute; top: 20px; right: 25px; color: white; opacity: 0.6; font-family: monospace; font-size: 1.1rem; }
-        .photo-frame { width: 190px; height: 190px; border-radius: 18px; border: 3px solid #42b72a; overflow: hidden; background: #0e1621; flex-shrink: 0; }
+        .photo-frame { width: 190px; height: 190px; border-radius: 18px; border: 3px solid #42b72a; overflow: hidden; background: #0e1621; flex-shrink: 0; display: flex; align-items: center; justify-content: center;}
         .photo-frame img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+        
+        .error-msg { color: #84a1c0; font-size: 0.8rem; text-align: center; display: none; }
+        
         .info-text h2 { color: #00d2ff; font-size: 1.9rem; margin: 0; text-transform: uppercase; }
         .profile-type { font-weight: 800; font-size: 1.3rem; margin: 8px 0; }
         .terminal-box { background: #0e1621; padding: 18px; border-radius: 12px; border-left: 4px solid #42b72a; color: #42b72a; font-family: 'Courier New', monospace; font-size: 1.05rem; }
@@ -35,7 +39,7 @@ frontier_html = """
         <div class="header-title">⚡ FRONTIER SCAN ⚡</div>
         <div id="quiz-zone">
             <div class="progress-container"><div id="p-bar" class="progress-bar"></div></div>
-            <h3 id="q-text" style="color: #1c1e21;">Analyse...</h3>
+            <h3 id="q-text" style="color: #1c1e21;">Analyse du sujet...</h3>
             <div id="options-zone"></div>
         </div>
         <div id="result-zone">
@@ -43,7 +47,10 @@ frontier_html = """
             <div id="result-card">
                 <span class="id-number" id="res-id"></span>
                 <div style="display:flex; gap:25px; align-items:center; margin-bottom:30px;">
-                    <div class="photo-frame"><img id="res-img" src=""></div>
+                    <div class="photo-frame">
+                        <img id="res-img" src="" onerror="this.style.display='none'; document.getElementById('img-err').style.display='block';">
+                        <div id="img-err" class="error-msg">PHOTO NON DISPONIBLE</div>
+                    </div>
                     <div class="info-text">
                         <h2>SUJET IDENTIFIÉ</h2>
                         <p class="profile-type" id="res-type"></p>
@@ -52,29 +59,31 @@ frontier_html = """
                 </div>
                 <div class="terminal-box">> <span id="res-note"></span></div>
             </div>
-            <button id="restart-btn" onclick="location.reload()">RESCANNER</button>
+            <button id="restart-btn" onclick="location.reload()">NOUVELLE ANALYSE</button>
         </div>
     </div>
 
     <script>
         const PATH = "https://raw.githubusercontent.com/noutatoum/gdp-dashboard/main/MonScanner/";
+        
+        // CORRECTION : On utilise agent.png pour Evasion en attendant que tu télécharges evasion.png
         const PROFILS = {
-            "Touriste": { s: "AUTORISÉ", c: "#42b72a", img: "touriste.png", n: "Voyageur standard. Visa en règle.", r: "BAS", msg: "🔓 ACCÈS ACCORDÉ", bc: "#e8f5e9" },
+            "Touriste": { s: "AUTORISÉ", c: "#42b72a", img: "touriste.png", n: "Voyageur standard. Visa valide.", r: "BAS", msg: "🔓 ACCÈS ACCORDÉ", bc: "#e8f5e9" },
             "Hacker": { s: "DÉTENU", c: "#d93025", img: "hacker.png", n: "Matériel d'intrusion détecté.", r: "CRITIQUE", msg: "🚨 ALERTE SÉCURITÉ", bc: "#ffebee" },
             "Trafiquant": { s: "INTERPELLÉ", c: "#d93025", img: "trafiquant.png", n: "Contrebande suspectée.", r: "ÉLEVÉ", msg: "🚨 INTERCEPTION", bc: "#ffebee" },
-            "Exile": { s: "EN ATTENTE", c: "#fabb3a", img: "exile.png", n: "Dossier humanitaire en cours.", r: "MODÉRÉ", msg: "⚠️ EXAMEN REQUIS", bc: "#fff3e0" },
-            "Ananas": { s: "SAISI", c: "#d93025", img: "ananas.png", n: "Risque biologique détecté.", r: "BIO-RISQUE", msg: "🚫 BIO-DANGER", bc: "#ffebee" },
-            "Agent": { s: "VALIDE", c: "#42b72a", img: "agent.png", n: "Mission d'État confirmée.", r: "AUCUN", msg: "🔓 PRIORITÉ DIPLOMATIQUE", bc: "#e8f5e9" },
+            "Exile": { s: "EN ATTENTE", c: "#fabb3a", img: "exile.png", n: "Dossier humanitaire en examen.", r: "MODÉRÉ", msg: "⚠️ EXAMEN REQUIS", bc: "#fff3e0" },
+            "Ananas": { s: "SAISI", c: "#d93025", img: "ananas.png", n: "Bio-organisme non identifié.", r: "BIO-RISQUE", msg: "🚫 BIO-DANGER", bc: "#ffebee" },
+            "Agent": { s: "VALIDE", c: "#42b72a", img: "agent.png", n: "Mission officielle validée.", r: "AUCUN", msg: "🔓 PRIORITÉ DIPLOMATIQUE", bc: "#e8f5e9" },
             "Artiste": { s: "AUTORISÉ", c: "#42b72a", img: "artiste.png", n: "Sujet créatif. Pas de menace.", r: "BAS", msg: "🔓 ACCÈS ACCORDÉ", bc: "#e8f5e9" },
             "Chercheur": { s: "CONTRÔLÉ", c: "#1877f2", img: "chercheur.png", n: "Matériel scientifique certifié.", r: "MODÉRÉ", msg: "🔍 CONTRÔLE SCIENTIFIQUE", bc: "#e3f2fd" },
-            "Evasion": { s: "SIGNALÉ", c: "#fabb3a", img: "evasion.png", n: "Capitaux suspects. Signalement fisc.", r: "FINANCIER", msg: "⚠️ SIGNALEMENT FISCAL", bc: "#fff3e0" }
+            "Evasion": { s: "SIGNALÉ", c: "#fabb3a", img: "agent.png", n: "Flux de capitaux suspects. Signalement fisc.", r: "FINANCIER", msg: "⚠️ SIGNALEMENT FISCAL", bc: "#fff3e0" }
         };
 
         const QS = [
-            { q: "Motif du passage ?", opt: [["Vacances", "Touriste"], ["Mission État", "Agent"], ["Optimisation fiscale", "Evasion"], ["Asile politique", "Exile"]] },
+            { q: "Motif du passage ?", opt: [["Vacances", "Touriste"], ["Mission État", "Agent"], ["Investissements", "Evasion"], ["Asile", "Exile"]] },
             { q: "Contenu bagages ?", opt: [["Vêtements", "Touriste"], ["Serveurs chiffrés", "Hacker"], ["Spécimen végétal", "Ananas"], ["Toiles et pinceaux", "Artiste"]] },
-            { q: "Profession ?", opt: [["Salarié / Étudiant", "Touriste"], ["Trader / Banquier", "Evasion"], ["Artiste indépendant", "Artiste"], ["Biologiste / Labo", "Chercheur"]] },
-            { q: "Comportement ?", opt: [["Calme absolu", "Agent"], ["Stress / Sueur", "Trafiquant"], ["Hautain / Froid", "Evasion"], ["Confusion totale", "Ananas"]] },
+            { q: "Profession ?", opt: [["Salarié / Étudiant", "Touriste"], ["Banquier d'affaires", "Evasion"], ["Artiste indépendant", "Artiste"], ["Biologiste / Labo", "Chercheur"]] },
+            { q: "Comportement ?", opt: [["Calme", "Agent"], ["Stress / Sueur", "Trafiquant"], ["Hautain", "Evasion"], ["Confusion totale", "Ananas"]] },
             { q: "Document ?", opt: [["Passeport Bio", "Touriste"], ["Passeport Diplomatique", "Agent"], ["Documents perdus", "Exile"], ["Faux passeport", "Trafiquant"]] },
             { q: "Électronique ?", opt: [["Smartphone", "Touriste"], ["Microscope pro", "Chercheur"], ["Antenne piratage", "Hacker"], ["Appareil photo", "Artiste"]] },
             { q: "Finances ?", opt: [["Compte salaire", "Touriste"], ["Crypto anonyme", "Hacker"], ["Société offshore", "Evasion"], ["Aucun moyen", "Exile"]] },
@@ -108,15 +117,22 @@ frontier_html = """
             document.getElementById("restart-btn").style.display = "block";
             const win = Object.keys(sc).reduce((a, b) => sc[a] > sc[b] ? a : b);
             const r = PROFILS[win];
+            
             const bar = document.getElementById("access-bar");
             bar.style.display = "block"; bar.style.background = r.bc; bar.style.color = r.c; bar.style.borderColor = r.c; bar.innerText = r.msg;
-            document.getElementById("res-img").src = PATH + r.img;
+            
+            const img = document.getElementById("res-img");
+            img.style.display = "block";
+            document.getElementById("img-err").style.display = "none";
+            img.src = PATH + r.img;
+
             document.getElementById("res-type").innerText = win.toUpperCase();
             document.getElementById("res-type").style.color = r.c;
             document.getElementById("res-risk").innerText = `RISQUE : ${r.r}`;
             document.getElementById("res-note").innerText = r.n;
             document.getElementById("res-id").innerText = "ID-" + Math.floor(10000 + Math.random() * 90000);
             document.getElementById("result-card").style.borderColor = r.c;
+
             if (r.s === "AUTORISÉ" || r.s === "VALIDE") {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             }
