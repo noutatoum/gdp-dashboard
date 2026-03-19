@@ -1,10 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# Configuration de la page Streamlit
+# Config Streamlit
 st.set_page_config(page_title="FRONTIER SCAN", layout="centered")
 
-# On définit le code HTML/JS à l'intérieur d'une variable Python
+# On intègre tout le design et la logique dans ce bloc HTML/JS
 frontier_html = """
 <!DOCTYPE html>
 <html lang="fr">
@@ -12,162 +12,149 @@ frontier_html = """
     <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #0e1621;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        #app-container {
-            width: 100%;
-            max-width: 450px;
-            background: #1b2838;
-            padding: 30px;
-            border-radius: 25px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-            border: 1px solid #30475e;
-            text-align: center;
-        }
-        h1 { color: #00d2ff; font-size: 1.6rem; text-transform: uppercase; letter-spacing: 2px; }
-        .btn-option {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: transparent;
-            color: #00d2ff;
-            border: 2px solid #00d2ff;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-option:hover { background: #00d2ff; color: #0e1621; box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); }
-        .result-card { display: none; }
-        .photo-frame {
-            width: 160px;
-            height: 160px;
-            border-radius: 20px;
-            border: 3px solid #00d2ff;
-            margin: 20px auto;
-            overflow: hidden;
-            background: #0e1621;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; padding: 20px; }
+        #app-container { width: 100%; max-width: 600px; text-align: center; }
+        
+        .header-title { color: #00d2ff; font-size: 2.5rem; font-weight: 800; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 15px; }
+        
+        /* Style des boutons de choix */
+        .btn-option { width: 100%; padding: 15px; margin: 10px 0; background: white; color: #1c1e21; border: 1px solid #ddd; border-radius: 10px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-option:hover { background: #f0f2f5; border-color: #00d2ff; }
+
+        /* BANDEAU ACCÈS */
+        #access-bar { display: none; width: 100%; padding: 15px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; text-align: left; }
+        
+        /* CARTE NOIRE (Ton design) */
+        #result-card { display: none; background: #1b2838; border-radius: 20px; padding: 30px; border-bottom: 5px solid #42b72a; text-align: left; position: relative; animation: slideUp 0.5s ease; }
+        
+        .id-number { position: absolute; top: 20px; right: 25px; color: white; opacity: 0.8; font-weight: bold; }
+        .status-dot { color: #42b72a; font-weight: bold; margin-bottom: 20px; display: block; }
+        
+        .profile-section { display: flex; gap: 20px; align-items: center; margin-bottom: 30px; }
+        .photo-frame { width: 180px; height: 180px; border-radius: 20px; border: 2px solid #42b72a; overflow: hidden; background: #0e1621; }
         .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
-        .status-badge { padding: 8px 20px; border-radius: 30px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
-        #alert-banner {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #d93025;
-            color: white;
-            text-align: center;
-            padding: 15px;
-            font-weight: bold;
-            z-index: 1000;
-            font-size: 1.2rem;
-        }
+        
+        .info-text h2 { color: #00d2ff; font-size: 2rem; margin: 0; text-transform: uppercase; }
+        .profile-type { color: #42b72a; font-weight: 800; font-size: 1.2rem; margin: 5px 0; }
+        .risk-level { color: #84a1c0; font-size: 0.9rem; }
+
+        .terminal-box { background: #0e1621; padding: 20px; border-radius: 10px; border-left: 4px solid #42b72a; color: #42b72a; font-family: 'Courier New', monospace; font-size: 1rem; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div id="alert-banner">🚨 ALERTE : INDIVIDU SUSPECT DÉTECTÉ 🚨</div>
-
     <div id="app-container">
+        <div class="header-title">⚡ FRONTIER SCAN ⚡</div>
+
         <div id="quiz-zone">
-            <h1>🛂 FRONTIER SCAN</h1>
-            <p id="question-text" style="color: #84a1c0; font-weight: bold; margin-bottom: 20px;"></p>
+            <h3 id="q-text" style="color: #1c1e21;">Initialisation...</h3>
             <div id="options-zone"></div>
         </div>
 
-        <div id="result-zone" class="result-card">
-            <div id="status-display" class="status-badge">ANALYSE TERMINÉE</div>
-            <div class="photo-frame">
-                <img id="result-photo" src="" alt="Profil">
+        <div id="result-zone">
+            <div id="access-bar"></div>
+            
+            <div id="result-card">
+                <span class="id-number" id="res-id">ID-61776</span>
+                <span class="status-dot" id="res-status-dot">● STATUS: AUTORISÉ</span>
+                
+                <div class="profile-section">
+                    <div class="photo-frame">
+                        <img id="res-img" src="">
+                    </div>
+                    <div class="info-text">
+                        <h2>SUJET IDENTIFIÉ</h2>
+                        <p class="profile-type" id="res-type">TOURISTE</p>
+                        <p class="risk-level" id="res-risk">RISQUE : BAS</p>
+                    </div>
+                </div>
+
+                <p style="color: #84a1c0; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px;">Analyse IA Terminal</p>
+                <div class="terminal-box">
+                    > <span id="res-note">Voyageur standard. Visa valide.</span>
+                </div>
             </div>
-            <h2 id="result-profile" style="color: #00d2ff; margin: 5px 0;">PROFIL</h2>
-            <p id="result-note" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; font-style: italic; font-size: 0.9rem;"></p>
-            <button class="btn-option" onclick="location.reload()">NOUVELLE ANALYSE</button>
+            
+            <button class="btn-option" style="margin-top:20px; background: white;" onclick="location.reload()">NOUVELLE ANALYSE</button>
         </div>
     </div>
 
     <script>
-        // LIEN GITHUB POUR LES IMAGES
-        const PATH = "https://raw.githubusercontent.com/noutatoum/gdp-dashboard/main/MonScanner/"; 
+        const PATH = "https://raw.githubusercontent.com/noutatoum/gdp-dashboard/main/MonScanner/";
 
         const PROFILS = {
-            "Touriste": { status: "AUTORISÉ", color: "#42b72a", img: "touriste.png", note: "Voyageur standard. Visa en règle. Séjour temporaire validé." },
-            "Hacker": { status: "DÉTENU", color: "#d93025", img: "hacker.png", note: "Tentative d'intrusion réseau détectée sur le portail sécurisé." },
-            "Trafiquant": { status: "INTERPELLÉ", color: "#d93025", img: "trafiquant.png", note: "Marchandises illicites détectées via scanner thermique." },
-            "Exile": { status: "EN ATTENTE", color: "#fabb3a", img: "exile.png", note: "Dossier de protection internationale en cours de vérification." },
-            "Ananas": { status: "DÉTRUIT", color: "#d93025", img: "ananas.png", note: "Bio-organisme non identifié. Risque de contamination." },
-            "Agent": { status: "VALIDE", color: "#42b72a", img: "agent.png", note: "Mission officielle diplomatique. Priorité de transit accordée." },
-            "Evasion": { status: "SIGNALÉ", color: "#fabb3a", img: "evasion.png", note: "Flux de capitaux suspects suspects." },
-            "Artiste": { status: "AUTORISÉ", color: "#42b72a", img: "artiste.png", note: "Sujet créatif. Aucune menace identifiée." },
-            "Chercheur": { status: "CONTRÔLÉ", color: "#1877f2", img: "chercheur.png", note: "Transport de matériel scientifique sous protocole strict." }
+            "Touriste": { s: "AUTORISÉ", c: "#42b72a", img: "touriste.png", n: "Voyageur standard. Visa valide.", r: "BAS", msg: "🔓 ACCÈS ACCORDÉ", bc: "#e8f5e9" },
+            "Hacker": { s: "DÉTENU", c: "#d93025", img: "hacker.png", n: "Matériel cyber-offensif détecté.", r: "CRITIQUE", msg: "🚨 ALERTE SÉCURITÉ", bc: "#ffebee" },
+            "Trafiquant": { s: "INTERPELLÉ", c: "#d93025", img: "trafiquant.png", n: "Contrebande suspectée.", r: "ÉLEVÉ", msg: "🚨 INTERCEPTION", bc: "#ffebee" },
+            "Exile": { s: "EN ATTENTE", c: "#fabb3a", img: "exile.png", n: "Dossier en cours d'examen.", r: "MODÉRÉ", msg: "⚠️ EXAMEN REQUIS", bc: "#fff3e0" },
+            "Ananas": { s: "SAISI", c: "#d93025", img: "ananas.png", n: "Bio-organisme non identifié.", r: "BIO-RISQUE", msg: "🚫 BIO-DANGER", bc: "#ffebee" },
+            "Agent": { s: "VALIDE", c: "#42b72a", img: "agent.png", n: "Mission officielle validée.", r: "AUCUN", msg: "🔓 PRIORITÉ DIPLOMATIQUE", bc: "#e8f5e9" },
+            "Evasion": { s: "SIGNALÉ", c: "#fabb3a", img: "evasion.png", n: "Capitaux suspects détectés.", r: "FINANCIER", msg: "⚠️ SIGNALEMENT FISCAL", bc: "#fff3e0" },
+            "Artiste": { s: "AUTORISÉ", c: "#42b72a", img: "artiste.png", n: "Profil créatif. Aucune menace.", r: "BAS", msg: "🔓 ACCÈS ACCORDÉ", bc: "#e8f5e9" },
+            "Chercheur": { s: "CONTRÔLÉ", c: "#1877f2", img: "chercheur.png", n: "Matériel scientifique approuvé.", r: "MODÉRÉ", msg: "🔍 CONTRÔLE SCIENTIFIQUE", bc: "#e3f2fd" }
         };
 
-        const QUESTIONS = [
-            { q: "Motif de passage ?", options: [["Vacances", "Touriste"], ["Aide", "Agent"], ["Optimisation", "Evasion"], ["Asile", "Exile"]] },
-            { q: "Contenu des bagages ?", options: [["Vêtements", "Touriste"], ["Serveurs", "Hacker"], ["Bio-Scan", "Ananas"], ["Rien", "Exile"]] },
-            { q: "Ressources ?", options: [["Salaire", "Touriste"], ["Crypto", "Hacker"], ["Offshore", "Evasion"], ["Néant", "Exile"]] },
-            { q: "Document ?", options: [["Passeport", "Touriste"], ["Diplomatique", "Agent"], ["Déchiré", "Exile"], ["Faux", "Trafiquant"]] },
-            { q: "Appareils ?", options: [["Smartphone", "Touriste"], ["Laptop", "Hacker"], ["Brouilleur", "Trafiquant"], ["Éprouvettes", "Chercheur"]] },
-            { q: "Réaction ?", options: [["Calme", "Agent"], ["Sueur", "Trafiquant"], ["Mépris", "Evasion"], ["Silence", "Ananas"]] },
-            { q: "Profession ?", options: [["Étudiant", "Touriste"], ["Expert Cyber", "Hacker"], ["Peintre", "Artiste"], ["Biologiste", "Chercheur"]] },
-            { q: "Destination ?", options: [["Hôtel", "Touriste"], ["Banque", "Evasion"], ["Laboratoire", "Chercheur"], ["Zone B", "Exile"]] },
-            { q: "Durée ?", options: [["1 semaine", "Touriste"], ["Indéfini", "Exile"], ["48h", "Agent"], ["24h", "Ananas"]] },
-            { q: "Dernier Pays ?", options: [["Schengen", "Touriste"], ["Paradis Fiscal", "Evasion"], ["Zone Conflit", "Exile"], ["Inconnu", "Ananas"]] }
+        const QS = [
+            { q: "Motif de passage ?", opt: [["Vacances", "Touriste"], ["Diplomatie", "Agent"], ["Optimisation", "Evasion"], ["Asile", "Exile"]] },
+            { q: "Contenu des bagages ?", opt: [["Vêtements", "Touriste"], ["Serveurs", "Hacker"], ["Inconnu", "Ananas"], ["Rien", "Exile"]] },
+            { q: "Profession ?", opt: [["Étudiant", "Touriste"], ["Expert Cyber", "Hacker"], ["Peintre", "Artiste"], ["Biologiste", "Chercheur"]] },
+            { q: "Réaction au scanner ?", opt: [["Calme", "Agent"], ["Sueur", "Trafiquant"], ["Mépris", "Evasion"], ["Silence", "Ananas"]] }
         ];
 
         let step = 0;
-        let scores = { "Touriste":0, "Hacker":0, "Trafiquant":0, "Exile":0, "Ananas":0, "Agent":0, "Evasion":0, "Artiste":0, "Chercheur":0 };
+        let sc = { "Touriste":0, "Hacker":0, "Trafiquant":0, "Exile":0, "Ananas":0, "Agent":0, "Evasion":0, "Artiste":0, "Chercheur":0 };
 
-        function showQuestion() {
-            if (step < QUESTIONS.length) {
-                const current = QUESTIONS[step];
-                document.getElementById("question-text").innerText = `SCAN ${step + 1}/10 : ${current.q}`;
+        function loadQ() {
+            if (step < QS.length) {
+                const curr = QS[step];
+                document.getElementById("q-text").innerText = `ÉTAPE ${step + 1} : ${curr.q}`;
                 const zone = document.getElementById("options-zone");
                 zone.innerHTML = "";
-                current.options.forEach(opt => {
-                    const btn = document.createElement("button");
-                    btn.className = "btn-option";
-                    btn.innerText = opt[0];
-                    btn.onclick = () => { scores[opt[1]]++; step++; showQuestion(); };
-                    zone.appendChild(btn);
+                curr.opt.forEach(o => {
+                    const b = document.createElement("button");
+                    b.className = "btn-option"; b.innerText = o[0];
+                    b.onclick = () => { sc[o[1]]++; step++; loadQ(); };
+                    zone.appendChild(b);
                 });
-            } else { showResult(); }
+            } else { finish(); }
         }
 
-        function showResult() {
+        function finish() {
             document.getElementById("quiz-zone").style.display = "none";
-            document.getElementById("result-zone").style.display = "block";
-            const gagnant = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
-            const res = PROFILS[gagnant];
+            document.getElementById("result-card").style.display = "block";
+            const win = Object.keys(sc).reduce((a, b) => sc[a] > sc[b] ? a : b);
+            const r = PROFILS[win];
 
-            document.getElementById("status-display").innerText = res.status;
-            document.getElementById("status-display").style.background = res.color;
-            document.getElementById("result-photo").src = PATH + res.img;
-            document.getElementById("result-profile").innerText = `PROFIL : ${gagnant.toUpperCase()}`;
-            document.getElementById("result-note").innerText = res.note;
+            const bar = document.getElementById("access-bar");
+            bar.style.display = "block";
+            bar.style.background = r.bc;
+            bar.style.color = r.c;
+            bar.innerText = r.msg;
 
-            if (["AUTORISÉ", "VALIDE"].includes(res.status)) {
+            document.getElementById("res-status-dot").innerText = `● STATUS: ${r.s}`;
+            document.getElementById("res-status-dot").style.color = r.c;
+            document.getElementById("result-card").style.borderColor = r.c;
+            
+            document.getElementById("res-img").src = PATH + r.img;
+            document.getElementById("res-type").innerText = win.toUpperCase();
+            document.getElementById("res-type").style.color = r.c;
+            document.getElementById("res-risk").innerText = `RISQUE : ${r.r}`;
+            document.getElementById("res-note").innerText = r.n;
+            document.getElementById("res-id").innerText = "ID-" + Math.floor(10000 + Math.random() * 90000);
+
+            if (r.s === "AUTORISÉ" || r.s === "VALIDE") {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            } else if (["DÉTENU", "INTERPELLÉ", "DÉTRUIT"].includes(res.status)) {
-                document.getElementById("alert-banner").style.display = "block";
+            } else {
+                // Effet Alarme simple (vibration)
+                navigator.vibrate(500);
             }
         }
-        showQuestion();
+        loadQ();
     </script>
 </body>
 </html>
 """
 
-# Injection du code dans l'app Streamlit
 components.html(frontier_html, height=800, scrolling=False)
