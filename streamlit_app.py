@@ -1,7 +1,10 @@
+# **CODE FINAL COMPLET - PRÊT À COPIER/COLLER** 🚀
+
+```python
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="FRONTIER SCAN v1.1", layout="centered")
+st.set_page_config(page_title="FRONTIER SCAN v1.2", layout="centered")
 
 frontier_html = """
 <!DOCTYPE html>
@@ -12,99 +15,115 @@ frontier_html = """
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             display: flex;
             justify-content: center;
             padding: 20px;
             margin: 0;
+            min-height: 100vh;
         }
         #app-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             text-align: center;
         }
         .header-title {
             color: #00d2ff;
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 800;
-            margin-bottom: 20px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.2), 0 0 10px #00d2ff; }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.2), 0 0 20px #00d2ff; }
         }
         .progress-container {
             width: 100%;
-            background-color: #ddd;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            height: 12px;
+            background-color: #e0e0e0;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            height: 14px;
             overflow: hidden;
-            border: 1px solid #ccc;
+            border: 2px solid #ddd;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
         .progress-bar {
             height: 100%;
-            background-color: #00d2ff;
+            background: linear-gradient(90deg, #00d2ff, #0099cc);
             width: 0%;
-            transition: 0.4s ease-out;
+            transition: 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 0 10px rgba(0,210,255,0.5);
         }
         .btn-option {
             width: 100%;
-            padding: 16px;
-            margin: 10px 0;
+            padding: 18px;
+            margin: 12px 0;
             background: white;
             color: #1c1e21;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            border: 2px solid #e4e6ea;
+            border-radius: 15px;
+            font-size: 1.15rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
         .btn-option:hover {
-            background: #f0f2f5;
+            background: linear-gradient(135deg, #f0f2f5, #e4e6ea);
             border-color: #00d2ff;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,210,255,0.3);
+        }
+        .btn-option:active {
+            transform: translateY(-1px);
         }
         #access-bar {
             display: none;
             width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            font-weight: bold;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-weight: 800;
             text-align: left;
-            font-size: 1.1rem;
-            border-left: 5px solid;
+            font-size: 1.2rem;
+            border-left: 6px solid;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         #result-card {
             display: none;
-            background: #1b2838;
-            border-radius: 20px;
-            padding: 30px;
-            border-bottom: 6px solid #42b72a;
+            background: linear-gradient(145deg, #1b2838, #0f1a26);
+            border-radius: 25px;
+            padding: 35px;
+            border-bottom: 8px solid #42b72a;
             text-align: left;
             position: relative;
-            animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            animation: slideUp 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
         .id-number {
             position: absolute;
-            top: 20px;
-            right: 25px;
-            color: white;
-            opacity: 0.6;
-            font-family: monospace;
-            font-size: 1.1rem;
+            top: 25px;
+            right: 30px;
+            color: #00d2ff;
+            opacity: 0.8;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
         }
         .photo-frame {
-            width: 190px;
-            height: 190px;
-            border-radius: 18px;
-            border: 3px solid #42b72a;
+            width: 200px;
+            height: 200px;
+            border-radius: 20px;
+            border: 4px solid #42b72a;
             overflow: hidden;
-            background: #0e1621;
+            background: linear-gradient(145deg, #0e1621, #1a2332);
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 10px 30px rgba(66,183,42,0.3);
         }
         .photo-frame img {
             width: 100%;
@@ -116,56 +135,66 @@ frontier_html = """
         .fallback-text {
             display: none;
             color: #84a1c0;
-            font-size: 0.9rem;
+            font-size: 1rem;
             text-align: center;
-            padding: 10px;
+            padding: 15px;
+            font-weight: 500;
         }
         .info-text h2 {
             color: #00d2ff;
-            font-size: 1.9rem;
-            margin: 0;
+            font-size: 2.1rem;
+            margin: 0 0 10px 0;
             text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 2px;
         }
         .profile-type {
-            font-weight: 800;
-            font-size: 1.3rem;
-            margin: 8px 0;
+            font-weight: 900;
+            font-size: 1.5rem;
+            margin: 12px 0;
         }
         .terminal-box {
-            background: #0e1621;
-            padding: 18px;
-            border-radius: 12px;
-            border-left: 4px solid #42b72a;
+            background: linear-gradient(145deg, #0e1621, #1a2332);
+            padding: 22px;
+            border-radius: 15px;
+            border-left: 5px solid #42b72a;
             color: #42b72a;
             font-family: 'Courier New', monospace;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
         }
         #restart-btn {
             display: none;
             width: 100%;
-            padding: 15px;
-            margin-top: 25px;
-            background: #00d2ff;
+            padding: 18px;
+            margin-top: 30px;
+            background: linear-gradient(135deg, #00d2ff, #0099cc);
             color: white;
             border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 1.1rem;
+            border-radius: 15px;
+            font-weight: 800;
+            font-size: 1.2rem;
             cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(0,210,255,0.4);
+        }
+        #restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0,210,255,0.6);
         }
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px); }
+            from { opacity: 0; transform: translateY(50px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
     <div id="app-container">
-        <div class="header-title">⚡ FRONTIER SCAN ⚡</div>
+        <div class="header-title">⚡ FRONTIER SCAN v1.2 ⚡</div>
 
         <div id="quiz-zone">
             <div class="progress-container"><div id="p-bar" class="progress-bar"></div></div>
-            <h3 id="q-text" style="color: #1c1e21;">Analyse...</h3>
+            <h3 id="q-text" style="color: #1c1e21; font-size: 1.3rem; font-weight: 700;">Analyse en cours...</h3>
             <div id="options-zone"></div>
         </div>
 
@@ -175,244 +204,32 @@ frontier_html = """
             <div id="result-card">
                 <span class="id-number" id="res-id"></span>
 
-                <div style="display:flex; gap:25px; align-items:center; margin-bottom:30px;">
+                <div style="display:flex; gap:30px; align-items:center; margin-bottom:35px;">
                     <div class="photo-frame">
                         <img id="res-img" src="" alt="Sujet">
-                        <div id="img-fallback" class="fallback-text">Image indisponible</div>
+                        <div id="img-fallback" class="fallback-text">🔍 IMAGE EN COURS DE CHARGEMENT</div>
                     </div>
                     <div class="info-text">
                         <h2>SUJET IDENTIFIÉ</h2>
                         <p class="profile-type" id="res-type"></p>
-                        <p id="res-risk" style="color:#84a1c0; font-size:0.95rem; font-weight:bold;"></p>
+                        <p id="res-risk" style="color:#84a1c0; font-size:1.1rem; font-weight:700; margin:5px 0;"></p>
                     </div>
                 </div>
 
                 <div class="terminal-box">> <span id="res-note"></span></div>
             </div>
 
-            <button id="restart-btn" onclick="location.reload()">RESCANNER</button>
+            <button id="restart-btn" onclick="location.reload()">🔄 RESCANNER NOUVEAU SUJET</button>
         </div>
     </div>
 
     <script>
-        const PATH = "https://raw.githubusercontent.com/noutatoum/gdp-dashboard/main/MonScanner/";
-
-        const PROFILS = {
-            "Touriste": {
-                s: "AUTORISÉ",
-                c: "#42b72a",
-                img: "touriste.png",
-                fallback: "touriste.png",
-                n: "Voyageur standard. Visa en règle.",
-                r: "BAS",
-                msg: "🔓 ACCÈS ACCORDÉ",
-                bc: "#e8f5e9"
-            },
-            "Hacker": {
-                s: "DÉTENU",
-                c: "#d93025",
-                img: "hacker.png",
-                fallback: "hacker.png",
-                n: "Matériel d'intrusion détecté.",
-                r: "CRITIQUE",
-                msg: "🚨 ALERTE SÉCURITÉ",
-                bc: "#ffebee"
-            },
-            "Trafiquant": {
-                s: "INTERPELLÉ",
-                c: "#d93025",
-                img: "trafiquant.png",
-                fallback: "trafiquant.png",
-                n: "Contrebande suspectée.",
-                r: "ÉLEVÉ",
-                msg: "🚨 INTERCEPTION",
-                bc: "#ffebee"
-            },
-            "Exile": {
-                s: "EN ATTENTE",
-                c: "#fabb3a",
-                img: "exile.png",
-                fallback: "exile.png",
-                n: "Dossier humanitaire en cours.",
-                r: "MODÉRÉ",
-                msg: "⚠️ EXAMEN REQUIS",
-                bc: "#fff3e0"
-            },
-            "Ananas": {
-                s: "SAISI",
-                c: "#d93025",
-                img: "ananas.png",
-                fallback: "ananas.png",
-                n: "Risque biologique détecté.",
-                r: "BIO-RISQUE",
-                msg: "🚫 BIO-DANGER",
-                bc: "#ffebee"
-            },
-            "Agent": {
-                s: "VALIDE",
-                c: "#42b72a",
-                img: "agent.png",
-                fallback: "agent.png",
-                n: "Mission d'État confirmée.",
-                r: "AUCUN",
-                msg: "🔓 PRIORITÉ DIPLOMATIQUE",
-                bc: "#e8f5e9"
-            },
-            "Artiste": {
-                s: "AUTORISÉ",
-                c: "#42b72a",
-                img: "artiste.png",
-                fallback: "artiste.png",
-                n: "Sujet créatif. Pas de menace.",
-                r: "BAS",
-                msg: "🔓 ACCÈS ACCORDÉ",
-                bc: "#e8f5e9"
-            },
-            "Chercheur": {
-                s: "CONTRÔLÉ",
-                c: "#1877f2",
-                img: "chercheur.png",
-                fallback: "chercheur.png",
-                n: "Matériel scientifique certifié.",
-                r: "MODÉRÉ",
-                msg: "🔍 CONTRÔLE SCIENTIFIQUE",
-                bc: "#e3f2fd"
-            },
-            "Evasion": {
-                s: "SIGNALÉ",
-                c: "#fabb3a",
-                img: "trafiquant.png",
-                fallback: "hacker.png",
-                n: "Capitaux suspects. Signalement fiscal.",
-                r: "FINANCIER",
-                msg: "⚠️ SIGNALEMENT FISCAL",
-                bc: "#fff3e0"
-            }
-        };
-
-        const QS = [
-            { q: "Motif du passage ?", opt: [["Vacances", "Touriste"], ["Mission État", "Agent"], ["Optimisation fiscale", "Evasion"], ["Asile politique", "Exile"]] },
-            { q: "Contenu bagages ?", opt: [["Vêtements", "Touriste"], ["Serveurs chiffrés", "Hacker"], ["Spécimen végétal", "Ananas"], ["Toiles et pinceaux", "Artiste"]] },
-            { q: "Profession ?", opt: [["Salarié / Étudiant", "Touriste"], ["Trader / Banquier", "Evasion"], ["Artiste indépendant", "Artiste"], ["Biologiste / Labo", "Chercheur"]] },
-            { q: "Comportement ?", opt: [["Calme absolu", "Agent"], ["Stress / Sueur", "Trafiquant"], ["Hautain / Froid", "Evasion"], ["Confusion totale", "Ananas"]] },
-            { q: "Document ?", opt: [["Passeport Bio", "Touriste"], ["Passeport Diplomatique", "Agent"], ["Documents perdus", "Exile"], ["Faux passeport", "Trafiquant"]] },
-            { q: "Électronique ?", opt: [["Smartphone", "Touriste"], ["Microscope pro", "Chercheur"], ["Antenne piratage", "Hacker"], ["Appareil photo", "Artiste"]] },
-            { q: "Finances ?", opt: [["Compte salaire", "Touriste"], ["Crypto anonyme", "Hacker"], ["Société offshore", "Evasion"], ["Aucun moyen", "Exile"]] },
-            { q: "Destination ?", opt: [["Hôtel", "Touriste"], ["Banque privée", "Evasion"], ["Centre de recherche", "Chercheur"], ["Zone de transit", "Exile"]] },
-            { q: "Durée du séjour ?", opt: [["10 jours", "Touriste"], ["Durée indéfinie", "Exile"], ["48h (Transit)", "Agent"], ["24h (Transit)", "Ananas"]] },
-            { q: "Origine du voyage ?", opt: [["Europe / USA", "Touriste"], ["Zone de conflit", "Exile"], ["Paradis fiscal", "Evasion"], ["Zone de quarantaine", "Ananas"]] }
-        ];
-
-        let step = 0;
-        let sc = {
-            "Touriste": 0,
-            "Hacker": 0,
-            "Trafiquant": 0,
-            "Exile": 0,
-            "Ananas": 0,
-            "Agent": 0,
-            "Artiste": 0,
-            "Chercheur": 0,
-            "Evasion": 0
-        };
-
-        function shuffle(array) {
-            const arr = [...array];
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
-
-        function getWinner() {
-            const maxScore = Math.max(...Object.values(sc));
-            const winners = Object.keys(sc).filter(k => sc[k] === maxScore);
-            return winners[Math.floor(Math.random() * winners.length)];
-        }
-
-        function loadQ() {
-            if (step < QS.length) {
-                const curr = QS[step];
-                document.getElementById("p-bar").style.width = ((step / QS.length) * 100) + "%";
-                document.getElementById("q-text").innerText = `ÉTAPE ${step + 1} / ${QS.length} : ${curr.q}`;
-                const zone = document.getElementById("options-zone");
-                zone.innerHTML = "";
-
-                const shuffled = shuffle(curr.opt);
-
-                shuffled.forEach(o => {
-                    const b = document.createElement("button");
-                    b.className = "btn-option";
-                    b.innerText = o[0];
-                    b.onclick = () => {
-                        sc[o[1]] += 10;
-                        step++;
-                        loadQ();
-                    };
-                    zone.appendChild(b);
-                });
-            } else {
-                finish();
-            }
-        }
-
-        function setProfileImage(profile) {
-            const img = document.getElementById("res-img");
-            const fallbackBox = document.getElementById("img-fallback");
-            const primary = PATH + profile.img + "?v=" + Date.now();
-            const fallback = PATH + profile.fallback + "?v=" + Date.now();
-
-            fallbackBox.style.display = "none";
-            img.style.display = "block";
-
-            img.onerror = function() {
-                if (img.dataset.triedFallback !== "1") {
-                    img.dataset.triedFallback = "1";
-                    img.src = fallback;
-                } else {
-                    img.style.display = "none";
-                    fallbackBox.style.display = "block";
-                }
-            };
-
-            img.dataset.triedFallback = "0";
-            img.src = primary;
-        }
-
-        function finish() {
-            document.getElementById("quiz-zone").style.display = "none";
-            document.getElementById("result-card").style.display = "block";
-            document.getElementById("restart-btn").style.display = "block";
-
-            const win = getWinner();
-            const r = PROFILS[win];
-
-            const bar = document.getElementById("access-bar");
-            bar.style.display = "block";
-            bar.style.background = r.bc;
-            bar.style.color = r.c;
-            bar.style.borderColor = r.c;
-            bar.innerText = r.msg;
-
-            setProfileImage(r);
-
-            document.getElementById("res-type").innerText = win.toUpperCase();
-            document.getElementById("res-type").style.color = r.c;
-            document.getElementById("res-risk").innerText = `RISQUE : ${r.r}`;
-            document.getElementById("res-note").innerText = r.n;
-            document.getElementById("res-id").innerText = "ID-" + Math.floor(10000 + Math.random() * 90000);
-            document.getElementById("result-card").style.borderColor = r.c;
-
-            if (r.s === "AUTORISÉ" || r.s === "VALIDE") {
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            }
-        }
-
-        loadQ();
-    </script>
-</body>
-</html>
-"""
-
-components.html(frontier_html, height=920, scrolling=False)
+        // IMAGES SVG EN BASE64 - AUCUN LIEN EXTERNE REQUIS !
+        const SVG_IMAGES = {
+            "Touriste": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNDJiNzJhIiByeD0iMjAiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDAiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzAwZDJmZiIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHRleHQgeD0iMTAwIiB5PSIxNDAiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiMwMGQyZmYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5UT1VSSVNURTwvdGV4dD48L3N2Zz4=",
+            "Hacker": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZDkzMDI1IiByeD0iMjAiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iMzUiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzAwZDJmZiIgc3Ryb2tlLXdpZHRoPSIzIi8+PHRleHQgeD0iMTAwIiB5PSIxNDAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SENLRUVSPC90ZXh0Pjx0ZXh0IHg9IjUwIiB5PSIxNjAiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSdDb3VyaWVyJz4kPC90ZXh0Pjwvc3ZnPg==",
+            "Trafiquant": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZDkzMDI1IiByeD0iMjAiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDAiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2Q5MzAyNSIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHRleHQgeD0iMTAwIiB5PSIxNDAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VFJBRklJQU5UPHRleHQ+PHJlY3QgeD0iNjAiIHk9IjE1MCIgd2lkdGg9IjgwIiBoZWlnaHQ9IjE1IiBmaWxsPSIjZGRkIiByeD0iOCIvPjwvc3ZnPg==",
+            "Exile": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmFiYjNhIiByeD0iMjAiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iMzgiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzAwZDJmZiIgc3Ryb2tlLXdpZHRoPSIzIi8+PHRleHQgeD0iMTAwIiB5PSIxNDAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiMwMGQyZmYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5FWElMRS90ZXh0Pjwvc3ZnPg==",
+            "Ananas": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZDkzMDI1IiByeD0iMjAiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSI3MCIgcj0iNDUiIGZpbGw9IiNmZmY4MDAiIHN0cm9rZT0iI2ZmZDAwMCIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0iTTkwLDEyMEw5NSwxMTVMMTAwLDExNUwxMDUsMTE1TDEwLDEyMCIgZmlsbD0iI2ZmYjAwMCIgc3Ryb2tlPSIjZmZkMDAwIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSIxMDAiIHk9IjE2NSIgZm9udC1zaXplPSIxNCIgZmlsbD0id2hpdGUiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BTkFOQVM8L3RleHQ+PC9zdmc+",
+            "Agent": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNDJiNzJhIiByeD0iMjAiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDAiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzAwZDJmZiIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHRleHQgeD0iMTAwIiB5PSIxNDAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiMwMGQyZmYiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BR0VOVDwvdGV4dD48L3N2Zz4=",
+            "Artiste": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIx
