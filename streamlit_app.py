@@ -3,6 +3,7 @@ import streamlit.components.v1 as components
 
 st.set_page_config(page_title="FRONTIER SCAN v1.1", layout="centered")
 
+# Script mis à jour avec système de priorité
 frontier_html = """
 <!DOCTYPE html>
 <html lang="fr">
@@ -59,7 +60,7 @@ frontier_html = """
         const PROFILS = {
             "Touriste": { s: "AUTORISÉ", c: "#42b72a", img: "touriste.png", f: "touriste.png", n: "Voyageur standard. Visa en règle.", r: "BAS", msg: "🔓 ACCÈS ACCORDÉ", bc: "#e8f5e9" },
             "Hacker": { s: "DÉTENU", c: "#d93025", img: "hacker.png", f: "hacker.png", n: "Matériel d'intrusion détecté.", r: "CRITIQUE", msg: "🚨 ALERTE SÉCURITÉ", bc: "#ffebee" },
-            "Trafiquant": { s: "INTERPELLÉ", c: "#d93025", img: "trafiquant.png", f: "trafiquant.png", n: "Contrebande suspectée.", r: "ÉLEVÉ", msg: "🚨 INTERCEPTION", bc: "#ffebee" },
+            "Trafiquant": { s: "INTERPELLÉ", c: "#d93025", img: "trafiquant.png", f: "trafiquant.png", n: "Contrebande suspectée ou faux documents.", r: "ÉLEVÉ", msg: "🚨 INTERCEPTION", bc: "#ffebee" },
             "Exile": { s: "EN ATTENTE", c: "#fabb3a", img: "exile.png", f: "exile.png", n: "Dossier humanitaire en cours.", r: "MODÉRÉ", msg: "⚠️ EXAMEN REQUIS", bc: "#fff3e0" },
             "Ananas": { s: "SAISI", c: "#d93025", img: "ananas.png", f: "ananas.png", n: "Risque biologique détecté.", r: "BIO-RISQUE", msg: "🚫 BIO-DANGER", bc: "#ffebee" },
             "Agent": { s: "VALIDE", c: "#42b72a", img: "agent.png", f: "agent.png", n: "Mission d'État confirmée.", r: "AUCUN", msg: "🔓 PRIORITÉ DIPLOMATIQUE", bc: "#e8f5e9" },
@@ -94,7 +95,12 @@ frontier_html = """
                 curr.opt.forEach(o => {
                     const b = document.createElement("button");
                     b.className = "btn-option"; b.innerText = o[0];
-                    b.onclick = () => { sc[o[1]] += 10; step++; loadQ(); };
+                    // Modification : On donne plus de poids aux réponses spécifiques
+                    b.onclick = () => { 
+                        sc[o[1]] += 15; 
+                        step++; 
+                        loadQ(); 
+                    };
                     zone.appendChild(b);
                 });
             } else { finish(); }
@@ -105,8 +111,20 @@ frontier_html = """
             document.getElementById("result-card").style.display = "block";
             document.getElementById("restart-btn").style.display = "block";
 
-            // On ajoute un petit aléatoire aux scores pour départager les égalités à 0
-            const win = Object.keys(sc).reduce((a, b) => (sc[a] + Math.random()) > (sc[b] + Math.random()) ? a : b);
+            // LOGIQUE DE PRIORITÉ : Si un profil à risque a un score > 0, il devient prioritaire sur le touriste
+            const profilsRisques = ["Hacker", "Trafiquant", "Ananas", "Evasion", "Exile"];
+            
+            const win = Object.keys(sc).reduce((a, b) => {
+                let scoreA = sc[a];
+                let scoreB = sc[b];
+
+                // Si c'est un profil à risque, on booste son score pour l'analyse finale
+                if(profilsRisques.includes(a) && scoreA > 0) scoreA += 100;
+                if(profilsRisques.includes(b) && scoreB > 0) scoreB += 100;
+
+                return (scoreA + Math.random()) > (scoreB + Math.random()) ? a : b;
+            });
+
             const r = PROFILS[win];
 
             const bar = document.getElementById("access-bar");
