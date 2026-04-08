@@ -40,7 +40,7 @@ frontier_html = """
 </head>
 <body>
     <div id="app-container">
-        <div class="header-title">Frontier Scanner v1.5</div>
+        <div class="header-title">Frontier Scanner </div>
         
         <div id="quiz-zone">
             <div class="progress-container"><div id="p-bar" class="progress-bar"></div></div>
