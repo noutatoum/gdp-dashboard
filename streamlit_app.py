@@ -1,7 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="FRONTIER SCAN v1.2", layout="centered")
+st.set_page_config(page_title="FRONTIER SCAN", layout="centered")
 
 frontier_html = """
 <!DOCTYPE html>
